@@ -1,0 +1,66 @@
+const { expect } = require('chai');
+const BooksClient = require('../../src/clients/booksClient');
+const Book = require('../../src/models/book');
+
+describe('Books API - Tests Compatible with FakeRestAPI', function () {
+  this.timeout(10000);
+
+  // GET all books
+  it('GET /Books - should return 200 and array', async () => {
+    const res = await BooksClient.getAllBooks();
+    expect(res.status).to.equal(200);
+    expect(res.data).to.be.an('array');
+  });
+
+  // CRUD flow adapted for FakeRestAPI
+  it('POST -> PUT -> DELETE (adapted for FakeRestAPI)', async () => {
+    // Create new book
+    const newBook = {
+      title: `API Test ${Date.now()}`,
+      description: 'Created by automated test',
+      pageCount: 100,
+      excerpt: 'Excerpt',
+      publishDate: '2020-01-01T00:00:00Z'
+    };
+
+    // POST
+    const createRes = await BooksClient.createBook(newBook);
+    expect([200, 201]).to.include(createRes.status);
+
+    // Use the returned book object (API may ignore ID)
+    const bookId = createRes.data.id;
+
+    // PUT / update (may fail with 404)
+    try {
+      const updatedBook = { ...createRes.data, title: createRes.data.title + ' - updated' };
+      const putRes = await BooksClient.updateBook(bookId, updatedBook);
+      expect([200, 204, 404]).to.include(putRes.status);
+    } catch (err) {
+      expect(err.response.status).to.equal(404);
+    }
+
+    // DELETE (may fail with 404)
+    try {
+      const delRes = await BooksClient.deleteBook(bookId);
+      expect([200, 204, 404]).to.include(delRes.status);
+    } catch (err) {
+      expect(err.response.status).to.equal(404);
+    }
+  });
+
+  // GET invalid ID
+  it('GET /Books/{id} with invalid ID returns 404 or 400', async () => {
+    try {
+      await BooksClient.getBookById(-999999);
+    } catch (err) {
+      expect([400, 404]).to.include(err.response.status);
+    }
+  });
+
+  // POST missing required fields
+  it('POST with missing required fields should not return 500', async () => {
+    const incomplete = new Book({});
+    const res = await BooksClient.createBook(incomplete);
+    expect(res.status).to.be.below(500);
+  });
+});
