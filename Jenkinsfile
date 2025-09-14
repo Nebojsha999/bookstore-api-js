@@ -7,11 +7,11 @@ pipeline {
     BASE_URL = "https://fakerestapi.azurewebsites.net"
     IMAGE_NAME = "bookstore-api-js-tests"
   }
-  stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-      }
+        steps {
+            sh 'git clone https://github.com/Nebojsha999/bookstore-api-js.git .'
+            sh 'git checkout main'
+        }
     }
     stage('Build Docker Image') {
       steps {
