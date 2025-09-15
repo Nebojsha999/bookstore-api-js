@@ -12,7 +12,6 @@ describe('Books API - Tests Compatible with FakeRestAPI', function () {
     expect(res.data).to.be.an('array');
   });
 
-  // CRUD flow 
   it('POST -> PUT -> DELETE (adapted for FakeRestAPI)', async () => {
     const newBook = {
       title: `API Test ${Date.now()}`,
@@ -22,7 +21,6 @@ describe('Books API - Tests Compatible with FakeRestAPI', function () {
       publishDate: '2020-01-01T00:00:00Z'
     };
 
-    // POST
     const createRes = await BooksClient.createBook(newBook);
     expect([200, 201]).to.include(createRes.status);
     const bookId = createRes.data.id;
@@ -46,14 +44,14 @@ describe('Books API - Tests Compatible with FakeRestAPI', function () {
   });
 
   // GET with valid ID
-it('GET /Books/{id} with valid ID should return 200 and a book object', async () => {
-  const res = await BooksClient.getBookById(1); // ID=1 exists in FakeRestAPI
-  expect(res.status).to.equal(200);
-  expect(res.data).to.be.an('object');
-  expect(res.data).to.have.property('id', 1);
-  expect(res.data).to.have.property('title');
-  expect(res.data).to.have.property('description');
-});
+  it('GET /Books/{id} with valid ID should return 200 and a book object', async () => {
+    const res = await BooksClient.getBookById(1); // ID=1 exists in FakeRestAPI
+    expect(res.status).to.equal(200);
+    expect(res.data).to.be.an('object');
+    expect(res.data).to.have.property('id', 1);
+    expect(res.data).to.have.property('title');
+    expect(res.data).to.have.property('description');
+  });
 
   // GET with invalid ID
   it('GET /Books/{id} with invalid ID returns 404 or 400', async () => {
