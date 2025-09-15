@@ -43,7 +43,17 @@ describe('Authors API - Tests Compatible with FakeRestAPI', function () {
     }
   });
 
-  // GET invalid ID
+  // GET with valid ID
+it('GET /Authors/{id} with valid ID should return 200 and an author object', async () => {
+  const res = await AuthorsClient.getAuthorById(1); // ID=1 exists in FakeRestAPI
+  expect(res.status).to.equal(200);
+  expect(res.data).to.be.an('object');
+  expect(res.data).to.have.property('id', 1);
+  expect(res.data).to.have.property('firstName');
+  expect(res.data).to.have.property('lastName');
+});
+
+  // GET with invalid ID
   it('GET /Authors/{id} with invalid ID returns 404 or 400', async () => {
     try {
       await AuthorsClient.getAuthorById(-999999);
