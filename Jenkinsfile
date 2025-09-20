@@ -5,38 +5,29 @@ pipeline {
         IMAGE_NAME = "bookstore-api-js-tests"
     }
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                // Let Jenkins handle the checkout in the workspace
-                git branch: 'main', url: 'https://github.com/Nebojsha999/bookstore-api-js.git'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    echo "Building Docker image $IMAGE_NAME..."
-                    sh "docker build -t $IMAGE_NAME ."
-                }
+                echo "Building Docker image $IMAGE_NAME..."
+                sh "docker build -t $IMAGE_NAME ."
             }
         }
 
         stage('Run Tests in Container') {
             steps {
-                script {
-                    echo "Running tests in Docker container..."
-                    sh """
-                        mkdir -p $WORKSPACE/reports
-                        docker run --rm \
-                            -e BASE_URL=$BASE_URL \
-                            -v $WORKSPACE/reports:/app/reports \
-                            $IMAGE_NAME
-                    """
-                }
+                echo "Running tests in Docker container..."
+                sh """
+                mkdir -p reports
+                docker run --rm -e BASE_URL=$BASE_URL -v /c/_git/bookstore-api-js/reports:/app/reports $IMAGE_NAME
+                """
             }
             post {
                 always {
-                    echo "Archiving test reports..."
                     archiveArtifacts artifacts: 'reports/**', fingerprint: true
                     junit allowEmptyResults: true, testResults: 'reports/*.xml'
                 }
