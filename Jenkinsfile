@@ -22,8 +22,11 @@ pipeline {
             steps {
                 echo "Running tests in Docker container..."
                 sh """
-                mkdir -p reports
-                docker run --rm -e BASE_URL=$BASE_URL -v /c/_git/bookstore-api-js/reports:/app/reports $IMAGE_NAME
+                mkdir -p $WORKSPACE/reports
+                docker run --rm \
+                    -e BASE_URL=$BASE_URL \
+                    -v $WORKSPACE/reports:/app/reports \
+                    $IMAGE_NAME
                 """
             }
             post {
